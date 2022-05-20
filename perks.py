@@ -48,7 +48,7 @@ class PerkHandler(commands.Cog):
         self.bot.log.info("Loading Perk history...")
 
         # Go through each user file in the log folder and subfolders
-        files = glob.glob(self.logPath + "/**/*PerkLog.txt", recursive=True)
+        files = glob.glob(self.logPath + "/*PerkLog.txt", recursive=True)
         files.sort(key=os.path.getmtime)
         for file in files:
             with open(file) as f:
@@ -60,7 +60,7 @@ class PerkHandler(commands.Cog):
 
     def handleLog(self, timestamp: datetime, message: str):
         # Ignore the id at the start of the message, no idea what it's for
-        message = message[message.find("[", 2) + 1 :]
+        message = message[message.find("[", 1) + 1 :]
 
         # Next is the name which we use to get the user
         name, message = message.split("]", 1)
@@ -89,7 +89,7 @@ class PerkHandler(commands.Cog):
             if timestamp > self.lastUpdateTimestamp:
                 self.bot.log.info(f"{user.name} died")
                 if self.notifyDeath:
-                    return f":zombie: {user.name} died after surviving {user.hoursAlive} hours :dizzy_face:"
+                    return f":zombie: {user.name} died after surviving {user.hoursAlive} hours :skull:"
         elif type == "Login":
             if timestamp > self.lastUpdateTimestamp:
                 user.online = True
@@ -104,7 +104,41 @@ class PerkHandler(commands.Cog):
             if timestamp > self.lastUpdateTimestamp:
                 self.bot.log.info(f"{user.name} {perk} changed to {level}")
                 if self.notifyPerk:
-                    return f":chart_with_upwards_trend: {user.name} reached {perk} level {level}"
+                    perks = [\
+                            ['Fitness' , ':bicyclist:'],\
+                            ['Strength' , ':muscle:'],\
+                            ['Sprinting' , ':runner:'],\
+                            ['Lightfoot' , ':ninja:'],\
+                            ['Nimble' , ':dash:'],\
+                            ['Sneak' , ':walking:'],\
+                            ['Axe' , ':axe:'],\
+                            ['Blunt' , ':guitar:'],\
+                            ['SmallBlunt' , ':hammer:'],\
+                            ['LongBlade' , ':crossed_swords:'],\
+                            ['SmallBlade' , ':knife:'],\
+                            ['Spear' , ':probing_cane:'],\
+                            ['Maintenance' , ':wrench:'],\
+                            ['Woodwork' , ':carpentry_saw:'],\
+                            ['Cooking' , ':cook:'],\
+                            ['Farming' , ':farmer:'],\
+                            ['Doctor' , ':health_worker:'],\
+                            ['Electricity' , ':zap:'],\
+                            ['MetalWelding' , ':mechanic:'],\
+                            ['Tailoring' , ':sewing_needle:'],\
+                            ['Brewing' , ':beer:'],\
+                            ['Aiming' , ':dart:'],\
+                            ['Reloading' , ':gun:'],\
+                            ['Lockpicking' , ':unlock:'],\
+                            ['Fishing' , ':fishing_pole_and_fish:'],\
+                            ['Trapping' , ':paw_prints:'],\
+                            ['PlantScavenging' , ':mushroom:'],\
+                            ['Mechanics', ':nut_and_bolt:']\
+                            ]
+                    icon = ":chart_with_upwards_trend:"
+                    for n in perks:
+                        if n[0] == perk:
+                            icon = n[1]
+                    return f"{icon} {user.name} reached {perk} level {level}"
         else:
             # Must be a list of perks following a login/player creation
             for (name, value) in re.findall(r"(\w+)=(\d+)", type):

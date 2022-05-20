@@ -3,6 +3,7 @@ from discord.ext import tasks, commands
 from file_read_backwards import FileReadBackwards
 import glob
 import re
+import os
 
 
 class ChatHandler(commands.Cog):
@@ -14,6 +15,7 @@ class ChatHandler(commands.Cog):
         self.lastUpdateTimestamp = datetime.now()
         self.update.start()
         self.webhook = None
+        self.notifyChat = os.getenv("CHAT", "True") == "True"
 
     def splitLine(self, line: str):
         """Split a log line into a timestamp and the remaining message"""
@@ -47,7 +49,7 @@ class ChatHandler(commands.Cog):
         discord if necessary"""
 
         # Ignore anything that's not "General" chat
-        if "chat=General" not in message:
+        if "chat=General" not in message and self.notifyChat == "False":
             return
 
         # Mirror any other received messages in the discord chat

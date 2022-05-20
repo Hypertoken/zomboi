@@ -105,7 +105,7 @@ class UserHandler(commands.Cog):
                 if self.notifyDisconnect:
                     return f":person_running: {user.name} has left"
 
-        elif "fully connected" in message:
+        elif "fully" in message:
             matches = re.search(r"\"(.*)\".*\((\d+),(\d+)", message)
             name = matches.group(1)
             user = self.getUser(name)
