@@ -122,7 +122,7 @@ class PerkHandler(commands.Cog):
                             ['Woodwork' , ':carpentry_saw:' , 'Carpentry'],\
                             ['Cooking' , ':cook:'],\
                             ['Farming' , ':farmer:'],\
-                            ['Doctor' , ':health_worker:' , 'First Aid'],\
+                            ['Doctor' , ':adhesive_bandage:' , 'First Aid'],\
                             ['Electricity' , ':zap:' , 'Electrical'],\
                             ['MetalWelding' , ':mechanic:' , 'Metalworking'],\
                             ['Tailoring' , ':sewing_needle:'],\
