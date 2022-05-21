@@ -95,7 +95,7 @@ class PerkHandler(commands.Cog):
                 user.online = True
                 self.bot.log.info(f"{user.name} login")
                 if self.notifyJoin:
-                    return f":zombie: {user.name} has arrived, survived for {user.hoursAlive} hours so far..."
+                    return f":bust_in_silhouette: {user.name} has arrived, survived for {user.hoursAlive} hours so far..."
         elif type == "Level Changed":
             match = re.search(r"\[(\w+)\]\[(\d+)\]", message)
             perk = match.group(1)
@@ -104,41 +104,48 @@ class PerkHandler(commands.Cog):
             if timestamp > self.lastUpdateTimestamp:
                 self.bot.log.info(f"{user.name} {perk} changed to {level}")
                 if self.notifyPerk:
+                    #Perks Array; Assign the icon, and correct the name of the perk if needed.
                     perks = [\
                             ['Fitness' , ':bicyclist:'],\
                             ['Strength' , ':muscle:'],\
                             ['Sprinting' , ':runner:'],\
-                            ['Lightfoot' , ':ninja:'],\
+                            ['Lightfoot' , ':walking:' , 'Lightfooted'],\
                             ['Nimble' , ':dash:'],\
-                            ['Sneak' , ':walking:'],\
+                            ['Sneak' , ':ninja:' , 'Sneaking'],\
                             ['Axe' , ':axe:'],\
-                            ['Blunt' , ':guitar:'],\
-                            ['SmallBlunt' , ':hammer:'],\
-                            ['LongBlade' , ':crossed_swords:'],\
-                            ['SmallBlade' , ':knife:'],\
-                            ['Spear' , ':probing_cane:'],\
+                            ['Blunt' , ':guitar:' , 'Long Blunt'],\
+                            ['SmallBlunt' , ':hammer:' , 'Short Blunt'],\
+                            ['LongBlade' , ':crossed_swords:' , 'Long Blade'],\
+                            ['SmallBlade' , ':knife:' , 'Short Blade'],\
+                            ['Spear' , ':person_fencing:'],\
                             ['Maintenance' , ':wrench:'],\
-                            ['Woodwork' , ':carpentry_saw:'],\
+                            ['Woodwork' , ':carpentry_saw:' , 'Carpentry'],\
                             ['Cooking' , ':cook:'],\
                             ['Farming' , ':farmer:'],\
-                            ['Doctor' , ':health_worker:'],\
-                            ['Electricity' , ':zap:'],\
-                            ['MetalWelding' , ':mechanic:'],\
+                            ['Doctor' , ':adhesive_bandage:' , 'First Aid'],\
+                            ['Electricity' , ':zap:' , 'Electrical'],\
+                            ['MetalWelding' , ':mechanic:' , 'Metalworking'],\
                             ['Tailoring' , ':sewing_needle:'],\
                             ['Brewing' , ':beer:'],\
                             ['Aiming' , ':dart:'],\
                             ['Reloading' , ':gun:'],\
                             ['Lockpicking' , ':unlock:'],\
-                            ['Fishing' , ':fishing_pole_and_fish:'],\
+                            ['Fishing' , ':fish:'],\
                             ['Trapping' , ':paw_prints:'],\
-                            ['PlantScavenging' , ':mushroom:'],\
+                            ['PlantScavenging' , ':herb:' , 'Foraging'],\
                             ['Mechanics', ':nut_and_bolt:']\
                             ]
+                    # If perk doesn't exist (maybe a mod) use a generic icon
                     icon = ":chart_with_upwards_trend:"
                     for n in perks:
                         if n[0] == perk:
                             icon = n[1]
-                    return f"{icon} {user.name} reached {perk} level {level}"
+                            #Change the to the real perk name if it exists in the array
+                            if len(n) == 3:
+                                rperk = n[2]
+                            else:
+                                rperk = perk
+                    return f"{icon} {user.name} reached {rperk} level {level}"
         else:
             # Must be a list of perks following a login/player creation
             for (name, value) in re.findall(r"(\w+)=(\d+)", type):
