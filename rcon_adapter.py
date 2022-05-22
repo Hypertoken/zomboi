@@ -7,7 +7,14 @@ import re
 class RCONAdapter(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.rconHost = "localhost"
+        
+        rconHost = os.getenv("RCON_HOST")
+        if rconHost is None:            
+            self.rconHost = "localhost"
+            self.bot.log.info("Using default IP")
+        else:
+            self.rconHost = rconHost
+
         port = os.getenv("RCON_PORT")
         if port is None:            
             self.rconPort = 27015

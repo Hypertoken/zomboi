@@ -89,7 +89,7 @@ class PerkHandler(commands.Cog):
             if timestamp > self.lastUpdateTimestamp:
                 self.bot.log.info(f"{user.name} died")
                 if self.notifyDeath:
-                    return f":zombie: {user.name} died after surviving {user.hoursAlive} hours :skull:"
+                    return f":zombie: {user.name} died after surviving {user.hoursAlive} hours :skull_and_crossbones:"
         elif type == "Login":
             if timestamp > self.lastUpdateTimestamp:
                 user.online = True

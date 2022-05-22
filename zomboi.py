@@ -10,8 +10,10 @@ import os
 from pathlib import Path
 from perks import PerkHandler
 from users import UserHandler
+from admin import AdminHandler
 from rcon_adapter import RCONAdapter
 
+#Load and override environmental variables from .env
 load_dotenv(override=True)
 
 # Verify the log path
@@ -64,10 +66,11 @@ async def on_ready():
     if zomboi.channel is None:
         zomboi.log.warning("Unable to get channel, will not be enabled")
     else:
-        zomboi.log.info("channel connected")
+        zomboi.log.info(f"{zomboi.channel} channel connected")
     zomboi.add_cog(UserHandler(zomboi, logPath))
     zomboi.add_cog(ChatHandler(zomboi, logPath))
     zomboi.add_cog(PerkHandler(zomboi, logPath))
+    zomboi.add_cog(AdminHandler(zomboi, logPath))
     zomboi.add_cog(RCONAdapter(zomboi))
     zomboi.add_cog(MapHandler(zomboi))
 
