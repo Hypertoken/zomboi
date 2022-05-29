@@ -9,6 +9,7 @@ class AdminHandler(commands.Cog):
 
     def __init__(self, bot, logPath):
         self.lastupdatetime = str
+        self.lastupdate = str
         self.alerttime = str
         self.checktime = str
         self.trigger = bool
@@ -54,6 +55,8 @@ class AdminHandler(commands.Cog):
             message = message[message.find(">", 2) + 2 :]
             message = message.split(" ")
             time = message[3].replace(".","")
+            date = message[2].split("-")
+            date = f"{date[1]}/{date[2]}/{date[0]}"
             self.checktime = time
             time = time.split(":")
             hour = int(time[0])
@@ -82,6 +85,9 @@ class AdminHandler(commands.Cog):
                 return self.lastupdatetime
             if hour == 8 and minute == "00" and meridiem == "AM":
                 return self.lastupdatetime
+            if date != self.lastupdate:
+                date = self.lastupdate
+                return date
         
     @commands.command()
     async def gettime(self, ctx):
