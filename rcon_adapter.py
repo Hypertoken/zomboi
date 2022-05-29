@@ -56,3 +56,12 @@ class RCONAdapter(commands.Cog):
         with Client(self.rconHost, self.rconPort, passwd=self.rconPassword, timeout=5.0) as client:
             result = client.run(f"addxp \"{name}\" {skill}={amount}")
             await ctx.send(result)
+
+    @commands.command()
+    @has_permissions(administrator=True)
+    async def quit(self, ctx):
+        """Reboot the server"""
+        with Client(self.rconHost, self.rconPort, passwd=self.rconPassword, timeout=5.0) as client:
+            result = client.run(f"quit")
+            if result == "Quit":
+                await ctx.send("Server is restarting...")

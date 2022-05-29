@@ -8,6 +8,11 @@ class AdminHandler(commands.Cog):
     """Class which handles the server log files"""
 
     def __init__(self, bot, logPath):
+        self.lastupdatetime = str
+        self.lastupdate = str
+        self.alerttime = str
+        self.checktime = str
+        self.trigger = bool
         self.bot = bot
         self.logPath = logPath
         self.tellchat = False
@@ -46,11 +51,13 @@ class AdminHandler(commands.Cog):
     # Parse a line in the user log file and take appropriate action
 
     def handleLog(self, timestamp: datetime, message: str):
-        if "IngameTime" in message and self.sendtochat:
-            self.sendtochat = False
+        if "IngameTime" in message:
             message = message[message.find(">", 2) + 2 :]
             message = message.split(" ")
             time = message[3].replace(".","")
+            date = message[2].split("-")
+            date = f"{date[1]}/{date[2]}/{date[0]}"
+            self.checktime = time
             time = time.split(":")
             hour = int(time[0])
             minute = int(time[1])
@@ -72,9 +79,43 @@ class AdminHandler(commands.Cog):
                 emoji = f"{hour}30"
             elif minute > 30 and minute < 60:
                 emoji = f"{hour}30"
-            return f":clock{emoji}: The current server time is {hour}:{minute} {meridiem} "
+            self.lastupdatetime = f":clock{emoji}: The current server time is {hour}:{minute} {meridiem}"
+            if self.trigger == True and self.checktime == self.alerttime:
+                self.trigger = False
+                return self.lastupdatetime
+            if hour == 8 and minute == "00" and meridiem == "AM":
+                return self.lastupdatetime
+            if date != self.lastupdate and hour == 12 and minute == "00" and meridiem == "AM":
+                self.lastupdate = date
+                return f":calendar_spiral: The current server date is {date}"
         
-
     @commands.command()
     async def gettime(self, ctx):
-        self.sendtochat = True
+        """Return the current surver time."""
+        if self.lastupdatetime is not None and self.bot.channel is not None:
+            await self.bot.channel.send(self.lastupdatetime)
+
+    @commands.command()
+    async def alert(self, ctx, alert: str, meridiem=None):
+        """Alert when the serve is at a specifc time."""
+        rtime = alert.split(":")
+        rminute = int(rtime[1])
+        if rminute == 0:
+            rminute = "00"
+        if meridiem != None:
+            await self.bot.channel.send(f"Setting an alert for {alert} {meridiem}")
+            if meridiem.upper() == "PM" or meridiem.upper() == "P":
+                if int(rtime[0]) == 12:
+                    rhour = int(rtime[0])
+                else:
+                    rhour = int(rtime[0]) +12
+            else:
+                if int(rtime[0]) == 12:
+                    rhour = "00"
+                else:
+                    rhour = int(rtime[0])
+        else:
+            await self.bot.channel.send(f"Setting an alert for {alert}")
+            rhour = int(rtime[0])
+        self.alerttime = f"{rhour}:{rminute}"
+        self.trigger = True
