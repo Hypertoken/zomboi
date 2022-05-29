@@ -8,6 +8,10 @@ class AdminHandler(commands.Cog):
     """Class which handles the server log files"""
 
     def __init__(self, bot, logPath):
+        self.lastupdatetime = str
+        self.alerttime = str
+        self.checktime = str
+        self.trigger = bool
         self.bot = bot
         self.logPath = logPath
         self.tellchat = False
@@ -46,11 +50,11 @@ class AdminHandler(commands.Cog):
     # Parse a line in the user log file and take appropriate action
 
     def handleLog(self, timestamp: datetime, message: str):
-        if "IngameTime" in message and self.sendtochat:
-            self.sendtochat = False
+        if "IngameTime" in message:
             message = message[message.find(">", 2) + 2 :]
             message = message.split(" ")
             time = message[3].replace(".","")
+            self.checktime = time
             time = time.split(":")
             hour = int(time[0])
             minute = int(time[1])
@@ -72,9 +76,32 @@ class AdminHandler(commands.Cog):
                 emoji = f"{hour}30"
             elif minute > 30 and minute < 60:
                 emoji = f"{hour}30"
-            return f":clock{emoji}: The current server time is {hour}:{minute} {meridiem} "
+            self.lastupdatetime = f":clock{emoji}: The current server time is {hour}:{minute} {meridiem}"
+            if self.trigger == True and self.checktime == self.alerttime:
+                self.trigger = False
+                return self.lastupdatetime
+            if hour == 8 and minute == "00" and meridiem == "AM":
+                return self.lastupdatetime
         
-
     @commands.command()
     async def gettime(self, ctx):
-        self.sendtochat = True
+        """Return the current surver time."""
+        if self.lastupdatetime is not None and self.bot.channel is not None:
+            await self.bot.channel.send(self.lastupdatetime)
+
+    @commands.command()
+    async def alert(self, ctx, alert: str, meridiem: str):
+        """Alert when the serve is at a specifc time."""
+        if meridiem.upper() == "PM" or meridiem.upper() == "P":
+                rtime = alert.split(":")
+                rhour = int(rtime[0]) +12
+                rminute = int(rtime[1])
+        else:
+            rtime = alert.split(":")
+            rhour = int(rtime[0])
+            rminute = int(rtime[1])
+        if rminute == 0:
+            rminute = "00"
+        self.alerttime = f"{rhour}:{rminute}"
+        await self.bot.channel.send(f"Setting an alert for {self.alerttime}")
+        self.trigger = True
