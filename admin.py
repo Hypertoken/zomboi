@@ -85,7 +85,7 @@ class AdminHandler(commands.Cog):
                 return self.lastupdatetime
             if hour == 8 and minute == "00" and meridiem == "AM":
                 return self.lastupdatetime
-            if date != self.lastupdate:
+            if date != self.lastupdate and hour == 12 and minute == "00" and meridiem == "AM":
                 self.lastupdate = date
                 return f":calendar_spiral: The current server date is {date}"
         
