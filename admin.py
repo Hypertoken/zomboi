@@ -90,18 +90,26 @@ class AdminHandler(commands.Cog):
             await self.bot.channel.send(self.lastupdatetime)
 
     @commands.command()
-    async def alert(self, ctx, alert: str, meridiem: str):
+    async def alert(self, ctx, alert: str, meridiem=None):
         """Alert when the serve is at a specifc time."""
-        if meridiem.upper() == "PM" or meridiem.upper() == "P":
-                rtime = alert.split(":")
-                rhour = int(rtime[0]) +12
-                rminute = int(rtime[1])
-        else:
-            rtime = alert.split(":")
-            rhour = int(rtime[0])
-            rminute = int(rtime[1])
+        rtime = alert.split(":")
+        rminute = int(rtime[1])
         if rminute == 0:
             rminute = "00"
+        if meridiem != None:
+            await self.bot.channel.send(f"Setting an alert for {alert} {meridiem}")
+            if meridiem.upper() == "PM" or meridiem.upper() == "P":
+                if int(rtime[0]) == 12:
+                    rhour = int(rtime[0])
+                else:
+                    rhour = int(rtime[0]) +12
+            else:
+                if int(rtime[0]) == 12:
+                    rhour = "00"
+                else:
+                    rhour = int(rtime[0])
+        else:
+            await self.bot.channel.send(f"Setting an alert for {alert}")
+            rhour = int(rtime[0])
         self.alerttime = f"{rhour}:{rminute}"
-        await self.bot.channel.send(f"Setting an alert for {self.alerttime}")
         self.trigger = True

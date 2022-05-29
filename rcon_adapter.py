@@ -63,4 +63,5 @@ class RCONAdapter(commands.Cog):
         """Reboot the server"""
         with Client(self.rconHost, self.rconPort, passwd=self.rconPassword, timeout=5.0) as client:
             result = client.run(f"quit")
-            await ctx.send(result)
+            if result == "Quit":
+                await ctx.send("Server is restarting...")
