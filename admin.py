@@ -86,8 +86,8 @@ class AdminHandler(commands.Cog):
             if hour == 8 and minute == "00" and meridiem == "AM":
                 return self.lastupdatetime
             if date != self.lastupdate:
-                self.lastupdate = f":calendar_spiral: The current server date is {date}"
-                return self.lastupdate
+                self.lastupdate = date
+                return f":calendar_spiral: The current server date is {date}"
         
     @commands.command()
     async def gettime(self, ctx):
