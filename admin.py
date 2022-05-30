@@ -52,15 +52,25 @@ class AdminHandler(commands.Cog):
 
     def handleLog(self, timestamp: datetime, message: str):
         if "IngameTime" in message:
+            # strip timestap from this line from the log
             message = message[message.find(">", 2) + 2 :]
+            # turn message variable into an array with the time and date. 
             message = message.split(" ")
+            # Get time from array and assign time variable
             time = message[3].replace(".","")
+            # Get date from array and assign date variable
             date = message[2].split("-")
+            # Reformate date string to match US locale
             date = f"{date[1]}/{date[2]}/{date[0]}"
+            # add time variable to Global checktime
             self.checktime = time
+            # split time into hours and minutes
             time = time.split(":")
+            # assign hour to hour variable
             hour = int(time[0])
+            # assign minute to minute variable
             minute = int(time[1])
+            # Handle AM/PM 
             if hour > 11:
                 if hour > 12:
                     hour = hour-12
@@ -70,6 +80,8 @@ class AdminHandler(commands.Cog):
                 meridiem = "AM"
             else:
                 meridiem = "AM"
+            # Change minute from INT to STR to match formatting.
+            # Create Clock Emoji based on actual ingame time
             if minute == 0:
                 minute = "00"  
                 emoji = hour
@@ -79,12 +91,16 @@ class AdminHandler(commands.Cog):
                 emoji = f"{hour}30"
             elif minute > 30 and minute < 60:
                 emoji = f"{hour}30"
+            # Create string to send to chat
             self.lastupdatetime = f":clock{emoji}: The current server time is {hour}:{minute} {meridiem}"
+            # If "Alert" is run send to chat when the time matches the alert time.
             if self.trigger == True and self.checktime == self.alerttime:
                 self.trigger = False
                 return self.lastupdatetime
+            # if its this time in the game, send to chat.
             if hour == 8 and minute == "00" and meridiem == "AM":
                 return self.lastupdatetime
+            # send the date to chat, and midnight everday.
             if date != self.lastupdate and hour == 12 and minute == "00" and meridiem == "AM":
                 self.lastupdate = date
                 return f":calendar_spiral: The current server date is {date}"
@@ -92,16 +108,22 @@ class AdminHandler(commands.Cog):
     @commands.command()
     async def gettime(self, ctx):
         """Return the current surver time."""
+        # Send the last saved time to chat
         if self.lastupdatetime is not None and self.bot.channel is not None:
             await self.bot.channel.send(self.lastupdatetime)
 
     @commands.command()
     async def alert(self, ctx, alert: str, meridiem=None):
         """Alert when the serve is at a specifc time."""
+        # set the requested time into an array from the alert command
         rtime = alert.split(":")
+        # get the minutes from the array
         rminute = int(rtime[1])
+        # change the minutes to 00 if 0 for formatting reasons
         if rminute == 0:
             rminute = "00"
+        # Check if its AM/PM or millitary time, and handle it.
+        # Alert chat that the request was recieved.
         if meridiem != None:
             await self.bot.channel.send(f"Setting an alert for {alert} {meridiem}")
             if meridiem.upper() == "PM" or meridiem.upper() == "P":
@@ -117,5 +139,7 @@ class AdminHandler(commands.Cog):
         else:
             await self.bot.channel.send(f"Setting an alert for {alert}")
             rhour = int(rtime[0])
+        # create variable for the alert time to check against the current time from the above function.
         self.alerttime = f"{rhour}:{rminute}"
+        # Tell the above function to send the alert.
         self.trigger = True
