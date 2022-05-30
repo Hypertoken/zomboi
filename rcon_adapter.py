@@ -3,6 +3,7 @@ from discord.ext.commands import has_permissions
 import os
 from rcon.source import Client
 import re
+import time
 
 class RCONAdapter(commands.Cog):
     def __init__(self, bot):
@@ -59,9 +60,32 @@ class RCONAdapter(commands.Cog):
 
     @commands.command()
     @has_permissions(administrator=True)
-    async def quit(self, ctx):
+    async def restart(self, ctx):
         """Reboot the server"""
         with Client(self.rconHost, self.rconPort, passwd=self.rconPassword, timeout=5.0) as client:
             result = client.run(f"quit")
             if result == "Quit":
-                await ctx.send("Server is restarting...")
+                await ctx.send(":recycle: Server is restarting...")
+
+    @commands.command()
+    @has_permissions(administrator=True)
+    async def rcon(self, ctx, *com: str):
+        """Send any RCON command, syntax !rcon 'command [options]'"""
+        if len(com) != 0:
+            for x in range(len(com)):
+                if x == 0:
+                    string = str(com[x]) + " "
+                elif x == len(com)-1:
+                    string = string + str(com[x])
+                else:
+                    string = string + str(com[x]) + " "
+            with Client(self.rconHost, self.rconPort, passwd=self.rconPassword, timeout=5.0) as client:
+                result = client.run(f"{string}")
+                if "Unknown command" in result:
+                    await ctx.send(f":warning: {result}")   
+                elif len(result) == 0:    
+                    return         
+                else:
+                    await ctx.send(f":desktop: {result}")
+        else:
+            await ctx.send(f":warning: ERROR: syntax !rcon [command] [options]")

@@ -9,10 +9,11 @@ class AdminHandler(commands.Cog):
 
     def __init__(self, bot, logPath):
         self.lastupdatetime = str
-        self.lastupdate = str
         self.alerttime = str
         self.checktime = str
         self.trigger = bool
+        #server start date
+        self.lastupdate = datetime(1993, 7, 8)
         self.bot = bot
         self.logPath = logPath
         self.tellchat = False
@@ -21,9 +22,12 @@ class AdminHandler(commands.Cog):
 
     def splitLine(self, line: str):
         """Split a log line into a timestamp and the remaining message"""
-        timestampStr, message = line.strip()[1:].split("]", 1)
-        timestamp = datetime.strptime(timestampStr, "%d-%m-%y %H:%M:%S.%f")
-        return timestamp, message
+        try:
+            timestampStr, message = line.strip()[1:].split("]", 1)
+            timestamp = datetime.strptime(timestampStr, "%d-%m-%y %H:%M:%S.%f")
+            return timestamp, message
+        except:
+            return self.lastUpdateTimestamp, line
 
     @tasks.loop(seconds=2)
     async def update(self):  
@@ -38,20 +42,27 @@ class AdminHandler(commands.Cog):
                 newTimestamp = self.lastUpdateTimestamp
                 for line in f:
                     timestamp, message = self.splitLine(line)
-                    if timestamp > newTimestamp:
-                        newTimestamp = timestamp
-                    if timestamp > self.lastUpdateTimestamp:
-                        message = self.handleLog(timestamp, message)
-                        if message is not None and self.bot.channel is not None:
-                            await self.bot.channel.send(message)
+                    if timestamp:
+                        if timestamp > newTimestamp:
+                            newTimestamp = timestamp
+                        if timestamp > self.lastUpdateTimestamp:
+                            message = self.handleLog(timestamp, message)
+                            if message is not None and self.bot.channel is not None:
+                                await self.bot.channel.send(message)
+                        else:
+                            break
                     else:
                         break
                 self.lastUpdateTimestamp = newTimestamp
-
+                
     # Parse a line in the user log file and take appropriate action
 
     def handleLog(self, timestamp: datetime, message: str):
-        if "IngameTime" in message:
+        if "RESET INBOUND" in message:
+            return f":no_entry: Server is doing a Hard reset. \n:warning: remove '%HOMEPATH%\Zomboid\Saves\Multiplayer\THIS_SERVER'"
+        if "SERVER STARTED" in message:
+            return f":satellite_orbital: Server connected succesfully"
+        if " IngameTime" in message:
             # strip timestap from this line from the log
             message = message[message.find(">", 2) + 2 :]
             # turn message variable into an array with the time and date. 
@@ -62,6 +73,7 @@ class AdminHandler(commands.Cog):
             date = message[2].split("-")
             # Reformate date string to match US locale
             date = f"{date[1]}/{date[2]}/{date[0]}"
+            date_from_string = datetime.strptime(date, "%m/%d/%Y")
             # add time variable to Global checktime
             self.checktime = time
             # split time into hours and minutes
@@ -101,8 +113,8 @@ class AdminHandler(commands.Cog):
             if hour == 8 and minute == "00" and meridiem == "AM":
                 return self.lastupdatetime
             # send the date to chat, and midnight everday.
-            if date != self.lastupdate and hour == 12 and minute == "00" and meridiem == "AM":
-                self.lastupdate = date
+            if date_from_string > self.lastupdate:
+                self.lastupdate = datetime.strptime(date, "%m/%d/%Y")
                 return f":calendar_spiral: The current server date is {date}"
         
     @commands.command()

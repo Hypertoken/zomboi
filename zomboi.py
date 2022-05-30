@@ -30,7 +30,7 @@ if logPath is None or len(logPath) == 0:
 intents = discord.Intents.default()
 intents.members = True
 intents.guilds = True
-zomboi = commands.bot.Bot("!", intents=intents)
+zomboi = commands.bot.Bot("!", intents=intents, help_command=None)
 
 # Redirect the discord log to a file
 logFormat = logging.Formatter("%(asctime)s:%(levelname)s:%(name)s: %(message)s")

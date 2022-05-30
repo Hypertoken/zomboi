@@ -15,7 +15,7 @@ class ChatHandler(commands.Cog):
         self.lastUpdateTimestamp = datetime.now()
         self.update.start()
         self.webhook = None
-        self.notifyChat = os.getenv("CHAT", "True") == "True"
+        self.notifyChat = os.getenv("CHAT", "false") == "false"
 
     def splitLine(self, line: str):
         """Split a log line into a timestamp and the remaining message"""
@@ -39,9 +39,10 @@ class ChatHandler(commands.Cog):
                     if timestamp > newTimestamp:
                         newTimestamp = timestamp
                     if timestamp > self.lastUpdateTimestamp:
-                        await self.handleLog(timestamp, message)
-                    else:
-                        break
+                        if self.notifyChat == "true":
+                            await self.handleLog(timestamp, message)
+                        else:
+                            break
                 self.lastUpdateTimestamp = newTimestamp
 
     async def handleLog(self, timestamp: datetime, message: str):
@@ -49,7 +50,7 @@ class ChatHandler(commands.Cog):
         discord if necessary"""
 
         # Ignore anything that's not "General" chat
-        if "chat=General" not in message and self.notifyChat == "False":
+        if "chat=General" not in message:
             return
 
         # Mirror any other received messages in the discord chat
