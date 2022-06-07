@@ -60,6 +60,14 @@ class RCONAdapter(commands.Cog):
 
     @commands.command()
     @has_permissions(administrator=True)
+    async def save(self, ctx):
+        """Save the server"""
+        with Client(self.rconHost, self.rconPort, passwd=self.rconPassword, timeout=5.0) as client:
+            result = client.run(f"save")
+            await ctx.send(f":floppy_disk: {result}")
+            
+    @commands.command()
+    @has_permissions(administrator=True)
     async def restart(self, ctx):
         """Reboot the server"""
         with Client(self.rconHost, self.rconPort, passwd=self.rconPassword, timeout=5.0) as client:

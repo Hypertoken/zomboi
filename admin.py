@@ -58,6 +58,10 @@ class AdminHandler(commands.Cog):
     # Parse a line in the user log file and take appropriate action
 
     def handleLog(self, timestamp: datetime, message: str):
+        if "Backup Pending" in message:
+            return f":floppy_disk: Full Backup Started."
+        if "QuitCommand.Command " in message:
+            return f":no_pedestrians: Server is down."
         if "RESET INBOUND" in message:
             return f":no_entry: Server is doing a Hard reset. \n:warning: remove '%HOMEPATH%\Zomboid\Saves\Multiplayer\THIS_SERVER'"
         if "SERVER STARTED" in message:
@@ -109,14 +113,33 @@ class AdminHandler(commands.Cog):
             if self.trigger == True and self.checktime == self.alerttime:
                 self.trigger = False
                 return self.lastupdatetime
-            # if its this time in the game, send to chat.
-            if hour == 8 and minute == "00" and meridiem == "AM":
-                return self.lastupdatetime
+            # Announce Life and Living TV.
+            if hour == 5 and minute == 30 and meridiem == "AM":
+                if self.lastupdate <= datetime(1993, 7, 17):
+                    return f":tv: Cooking is coming on Life and Living TV in a half hour."
+            if hour == 11 and minute == 30 and meridiem == "AM":
+                if self.lastupdate <= datetime(1993, 7, 15):
+                    return f":tv: Carpentry is coming on Life and Living TV in a half hour."
+            if hour == 5 and minute == 30 and meridiem == "PM":
+                if self.lastupdate == datetime(1993, 7, 16):
+                    return f":tv: Carpentry is coming on Life and Living TV in a half hour."
+            if hour == 5 and minute == 30 and meridiem == "PM":
+                if self.lastupdate == datetime(1993, 7, 9) or self.lastupdate == datetime(1993, 7, 11):
+                    return f":tv: Fishing is coming on Life and Living TV in a half hour."
+            if hour == 5 and minute == 30 and meridiem == "PM":
+                if self.lastupdate == datetime(1993, 7, 13) or self.lastupdate == datetime(1993, 7, 15):
+                    return f":tv: Foraging is coming on Life and Living TV in a half hour."
+            if hour == 5 and minute == 30 and meridiem == "PM":
+                if self.lastupdate == datetime(1993, 7, 10):
+                    return f":tv: Farming is coming on Life and Living TV in a half hour."
+            if hour == 5 and minute == 30 and meridiem == "PM":
+                if self.lastupdate == datetime(1993, 7, 14):
+                    return f":tv: Trapping is coming on Life and Living TV in a half hour."
             # send the date to chat, and midnight everday.
             if date_from_string > self.lastupdate:
                 self.lastupdate = datetime.strptime(date, "%m/%d/%Y")
                 return f":calendar_spiral: The current server date is {date}"
-        
+               
     @commands.command()
     async def gettime(self, ctx):
         """Return the current surver time."""
