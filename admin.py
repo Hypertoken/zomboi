@@ -58,6 +58,8 @@ class AdminHandler(commands.Cog):
     # Parse a line in the user log file and take appropriate action
 
     def handleLog(self, timestamp: datetime, message: str):
+        if "Restore Pending" in message:
+            return f":floppy_disk: Full Restore Started."
         if "Backup Pending" in message:
             return f":floppy_disk: Full Backup Started."
         if "QuitCommand.Command " in message:
